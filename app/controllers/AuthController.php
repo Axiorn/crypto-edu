@@ -1,48 +1,62 @@
 <?php
-require_once __DIR__ . '/../models/User.php';
-class AuthController extends Controller {
+class AuthController {
     private $userModel;
 
-    public function __construct(){
-        $this->userModel = $this->model('User');
-        session_start();
+    public function __construct() {
+        $this->userModel = new User();
+        if (session_status() === PHP_SESSION_NONE) session_start();
     }
-    public function index(){
-        header('Location: ' . BASEURL . '/Auth/login');
+
+    public function index() {
+        $this->login();
     }
-    public function login(){
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    public function login() {
+        $data = [];
+
+        // Ambil pesan flash jika ada
+        if (!empty($_SESSION['flash_message'])) {
+            $data['success'] = $_SESSION['flash_message'];
+            unset($_SESSION['flash_message']);
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $_POST['username'];
             $password = $_POST['password'];
+            $user = $this->userModel->getByUsername($username);
 
-            $user = $this->userModel->login($username, $password);
-
-            if($user) {
-                $_SESSION['user'] = $user;
-                header('Location: ' . BASEURL . '/Encrypt');
+            if ($user && sodium_crypto_pwhash_str_verify($user['password_hash'], $password)) {
+                $_SESSION['user'] = $user['username'];
+                header('Location: ' . BASEURL . '/Dashboard');
                 exit;
             } else {
-                $error = "Username atau password salah.";
+                $data['error'] = 'Username atau password salah.';
             }
         }
-        $this->view('auth/login', isset($error) ? ['error' => $error] : []);
+
+        require_once '../app/views/auth/login.php';
     }
-    public function register(){
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    public function register() {
+        $data = [];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $_POST['username'];
             $password = $_POST['password'];
 
-            if($this->userModel->register($username, $password)) {
-                $success = "Registrasi berhasil.";
-            } else {
-                $error = "Registrasi gagal.";
+            try {
+                $this->userModel->create($username, $password);
+
+                // Simpan pesan flash
+                $_SESSION['flash_message'] = 'Akun berhasil dibuat dengan aman.';
+
+                // Redirect ke halaman login
+                header('Location: ' . BASEURL . '/Auth/login');
+                exit;
+            } catch (Exception $e) {
+                $data['error'] = $e->getMessage();
             }
         }
-        $this->view('auth/register', isset($error) ? ['error' => $error] : []);
-    }
-    public function logout(){
-        session_destroy();
-        header('Location: ' . BASEURL . '/Auth/login');
+
+        require_once '../app/views/auth/register.php';
     }
 }
-?>
