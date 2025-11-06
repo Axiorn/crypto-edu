@@ -1,0 +1,34 @@
+<?php
+// app/models/User.php
+require_once __DIR__ . '/../../core/Database.php';
+class User {
+    private $db;
+    public function __construct() {
+    $this->db = Database::getInstance();
+    }
+
+
+    public function create($username, $password) {
+        $stmt = $this->db->prepare('SELECT id FROM users WHERE username = ?');
+        $stmt->execute([$username]);
+        if ($stmt->fetch()) throw new Exception('Username sudah ada.');
+
+        $hash = sodium_crypto_pwhash_str(
+            $password,
+            SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+            SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+        );
+
+
+        $stmt = $this->db->prepare('INSERT INTO users (username, password_hash) VALUES (?,?)');
+        $stmt->execute([$username, $hash]);
+        return $this->db->lastInsertId();
+    }
+
+
+    public function getByUsername($username) {
+        $stmt = $this->db->prepare('SELECT * FROM users WHERE username = ?');
+        $stmt->execute([$username]);
+        return $stmt->fetch();
+    }
+}
