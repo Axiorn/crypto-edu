@@ -1,17 +1,20 @@
 <?php
-require_once __DIR__ . '/../models/User.php';
-class AuthController extends Controller {
+class AuthController {
     private $userModel;
 
-    public function __construct(){
-        $this->userModel = $this->model('User');
-        session_start();
+    public function __construct() {
+        $this->userModel = new User();
+        if (session_status() === PHP_SESSION_NONE) session_start();
     }
-    public function index(){
-        header('Location: ' . BASEURL . '/Auth/login');
+
+    public function index() {
+        $this->login();
     }
+
     public function login() {
         $data = [];
+
+        // Ambil pesan flash jika ada
         if (!empty($_SESSION['flash_message'])) {
             $data['success'] = $_SESSION['flash_message'];
             unset($_SESSION['flash_message']);
@@ -33,7 +36,8 @@ class AuthController extends Controller {
 
         require_once '../app/views/auth/login.php';
     }
-    public function register(){
+
+    public function register() {
         $data = [];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $_POST['username'];
@@ -56,4 +60,3 @@ class AuthController extends Controller {
         require_once '../app/views/auth/register.php';
     }
 }
-?>
