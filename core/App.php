@@ -7,20 +7,25 @@ class App {
     public function __construct() {
         $url = $this->parseURL();
 
-        if (isset($url[0]) && file_exists(__DIR__ . '/../app/controllers/' . $url[0] . '.php')) {
-            $this->controller = $url[0];
+        // Cek apakah controller ada
+        if (isset($url[0]) && file_exists('../app/controllers/' . ucfirst($url[0]) . 'Controller.php')) {
+            $this->controller = ucfirst($url[0]) . 'Controller';
             unset($url[0]);
         }
 
-        require_once __DIR__ . '/../app/controllers/' . $this->controller . '.php';
+        require_once '../app/controllers/' . $this->controller . '.php';
         $this->controller = new $this->controller;
 
+        // Cek method
         if (isset($url[1]) && method_exists($this->controller, $url[1])) {
             $this->method = $url[1];
             unset($url[1]);
         }
 
+        // Sisa URL dijadikan parameter
         $this->params = $url ? array_values($url) : [];
+
+        // Jalankan controller dan method
         call_user_func_array([$this->controller, $this->method], $this->params);
     }
 
@@ -28,6 +33,5 @@ class App {
         if (isset($_GET['url'])) {
             return explode('/', filter_var(rtrim($_GET['url'], '/'), FILTER_SANITIZE_URL));
         }
-        return ['AuthController', 'index']; // fallback default
     }
 }

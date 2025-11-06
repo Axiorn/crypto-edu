@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../models/User.php';
 class AuthController {
     private $userModel;
 
@@ -27,7 +28,7 @@ class AuthController {
 
             if ($user && sodium_crypto_pwhash_str_verify($user['password_hash'], $password)) {
                 $_SESSION['user'] = $user['username'];
-                header('Location: ' . BASEURL . '/Dashboard');
+                header('Location: ' . BASEURL . '/dashboard');
                 exit;
             } else {
                 $data['error'] = 'Username atau password salah.';
@@ -58,5 +59,11 @@ class AuthController {
         }
 
         require_once '../app/views/auth/register.php';
+    }
+
+    public function logout() {
+        session_destroy();
+        header('Location: ' . BASEURL . '/Auth/login');
+        exit;
     }
 }

@@ -13,7 +13,7 @@
     <a href="<?= BASEURL ?>" class="font-bold">CryptoEdu</a>
         <div>
         <?php if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['user'])): ?>
-            <span class="mr-4">Hi, <?= htmlspecialchars($_SESSION['user']['username']) ?></span>
+            <span class="mr-4">Hi, <?= htmlspecialchars($_SESSION['user']) ?></span>
             <a href="<?= BASEURL ?>/Auth/logout" class="text-red-500">Logout</a>
             <?php else: ?>
             <a href="<?= BASEURL ?>/Auth/login" class="mr-4">Login</a>
