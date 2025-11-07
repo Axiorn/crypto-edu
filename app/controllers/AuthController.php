@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/User.php';
+
 class AuthController {
     private $userModel;
 
@@ -24,9 +25,10 @@ class AuthController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $_POST['username'];
             $password = $_POST['password'];
-            $user = $this->userModel->getByUsername($username);
 
-            if ($user && sodium_crypto_pwhash_str_verify($user['password_hash'], $password)) {
+            $user = $this->userModel->login($username, $password);
+
+            if ($user) {
                 $_SESSION['user'] = $user['username'];
                 header('Location: ' . BASEURL . '/dashboard');
                 exit;
@@ -40,17 +42,16 @@ class AuthController {
 
     public function register() {
         $data = [];
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $_POST['username'];
             $password = $_POST['password'];
 
             try {
+                // Kirim langsung ke model, biarkan model yang melakukan hashing dan enkripsi
                 $this->userModel->create($username, $password);
 
-                // Simpan pesan flash
                 $_SESSION['flash_message'] = 'Akun berhasil dibuat dengan aman.';
-
-                // Redirect ke halaman login
                 header('Location: ' . BASEURL . '/Auth/login');
                 exit;
             } catch (Exception $e) {

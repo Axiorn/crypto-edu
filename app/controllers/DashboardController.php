@@ -1,16 +1,27 @@
 <?php
-class DashboardController {
-    public function index() {
-        require_once '../app/views/dashboard/index.php';
+
+class DashboardController
+{
+    public function index()
+    {
+        require_once '../app/Views/dashboard/index.php';
     }
 
-    public function loadDemo($feature) {
-        $allowed = ['login', 'database', 'super', 'file', 'stegano'];
-        if (in_array($feature, $allowed)) {
-            require_once "../app/views/dashboard/modal_{$feature}.php";
+    // ✅ Controller untuk load konten demo (dipanggil via fetch)
+    public function demo($type = null)
+    {
+        if (!$type) {
+            echo "Tipe demo tidak ditemukan.";
+            return;
+        }
+
+        // Normalisasi nama file agar sesuai dengan struktur folder kamu
+        $filePath = "../app/Views/demo/{$type}_demo.php";
+
+        if (file_exists($filePath)) {
+            require $filePath;
         } else {
-            echo "<p>Fitur tidak ditemukan.</p>";
+            echo "<p>⚠️ Halaman demo tidak ditemukan untuk tipe: " . htmlspecialchars($type) . "</p>";
         }
     }
 }
-?>

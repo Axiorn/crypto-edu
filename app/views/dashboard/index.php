@@ -10,7 +10,11 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta charset="UTF-8">
     <title>CryptoEdu Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="/crypto-edu/public/js/dashboard.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/scrypt-js@3.0.1/dist/scrypt.min.js"></script>
+    <script src="/crypto-edu/public/js/dashboard.js" defer></script>
+
+
+
 </head>
 <body class="bg-[#f9f4ef] text-[#F8F8F8] min-h-screen flex flex-col">
 

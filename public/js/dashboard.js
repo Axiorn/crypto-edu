@@ -3,20 +3,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const demoContainer = document.getElementById("demo-container");
     const demoCard = document.getElementById("demo-card");
 
-    // Buka modal dan load konten
     demoButtons.forEach(btn => {
         btn.addEventListener("click", async () => {
             const demoType = btn.getAttribute("data-demo");
-            const response = await fetch(`/crypto-edu/views/demo/${demoType}_demo.php`);
-            const content = await response.text();
-            demoCard.innerHTML = content;
-            demoContainer.classList.remove("hidden");
-            demoContainer.classList.add("flex");
-            setupLoginDemo(); // panggil fungsi untuk event login demo
+            try {
+                const response = await fetch(`/crypto-edu/public/Dashboard/demo/${demoType}`);
+                const content = await response.text();
+                demoCard.innerHTML = content;
+                demoContainer.classList.remove("hidden");
+                demoContainer.classList.add("flex");
+                setupLoginDemo(); // jalankan setup jika ini demo login
+            } catch (err) {
+                console.error("Gagal memuat konten demo:", err);
+                alert("Gagal memuat konten demo!");
+            }
         });
     });
 
-    // Tutup modal jika klik area luar
     demoContainer.addEventListener("click", (e) => {
         if (e.target === demoContainer) {
             demoContainer.classList.add("hidden");
@@ -25,44 +28,71 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Fungsi setup langkah-langkah demo login
 function setupLoginDemo() {
     const steps = document.querySelectorAll("#login-demo-content .step");
+    if (!steps.length) return;
+
     const showStep = (n) => steps.forEach((s, i) => s.classList.toggle("hidden", i !== n - 1));
 
-    // Step 1 → Enkripsi
     document.getElementById("encryptBtn").onclick = async () => {
         const password = document.getElementById("userPassword").value;
         if (!password) return alert("Masukkan password terlebih dahulu!");
-        // simulasi proses hashing (karena scrypt tidak tersedia di JS langsung)
-        const salt = crypto.getRandomValues(new Uint8Array(16));
-        const enc = new TextEncoder().encode(password);
-        const digest = await crypto.subtle.digest("SHA-256", enc);
-        const hashHex = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
-        document.getElementById("encryptOutput").textContent = `Hash simulasi (SHA-256): ${hashHex}`;
-        showStep(2);
+
+        const output = document.getElementById("encryptOutput");
+        output.textContent = "⏳ Sedang memproses hashing dengan Scrypt...";
+
+        try {
+            const res = await fetch("/crypto-edu/public/DemoLogin/handle", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `action=encrypt&password=${encodeURIComponent(password)}`
+            });
+            const data = await res.json();
+
+            if (data.hash) {
+                output.textContent = `🔐 Hash (Scrypt): ${data.hash}`;
+                showStep(2);
+            } else {
+                output.textContent = "❌ Gagal memproses hashing.";
+            }
+        } catch (err) {
+            console.error("Error hashing:", err);
+            output.textContent = "❌ Terjadi kesalahan saat hashing.";
+        }
     };
 
-    // Step 2 → Next
     document.getElementById("nextStep").onclick = () => showStep(3);
 
-    // Step 3 → Verifikasi
-    document.getElementById("verifyBtn").onclick = () => {
-        const input = document.getElementById("verifyPassword").value;
+    document.getElementById("verifyBtn").onclick = async () => {
+    const input = document.getElementById("verifyPassword").value;
+
+    try {
+        const res = await fetch("/crypto-edu/public/DemoLogin/handle", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `action=verify&verify=${encodeURIComponent(input)}`
+        });
+        const data = await res.json();
+
         const resultEl = document.getElementById("verifyResult");
-        // simulasi: jika input sama, dianggap valid
-        const orig = document.getElementById("userPassword").value;
-        if (input === orig) {
+        resultEl.classList.remove("text-green-400", "text-red-400");
+
+        if (data.verified === true) {
             resultEl.textContent = "✅ Password cocok! Login berhasil.";
             resultEl.classList.add("text-green-400");
+            showStep(4); // hanya lanjut jika verifikasi berhasil
         } else {
-            resultEl.textContent = "❌ Password salah!";
+            resultEl.textContent = "❌ Password tidak cocok.";
             resultEl.classList.add("text-red-400");
+            // tidak lanjut ke step 4
         }
-        setTimeout(() => showStep(4), 2000);
-    };
+    } catch (err) {
+        console.error("Error verifikasi:", err);
+        alert("Gagal melakukan verifikasi.");
+    }
+};
 
-    // Step 4 → Close
+
     document.addEventListener("click", (e) => {
         if (e.target.id === "closeDemo") {
             document.getElementById("demo-container").classList.add("hidden");
