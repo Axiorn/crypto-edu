@@ -174,3 +174,88 @@ function setupSuperEnkripsiDemo() {
     };
 }
 
+function setupFileDemo() {
+    const input = document.getElementById("fileInput");
+    const output = document.getElementById("fileOutput");
+    const title = document.getElementById("fileDemoTitle");
+    const encryptBtn = document.getElementById("fileEncryptBtn");
+    const decryptBtn = document.getElementById("fileDecryptBtn");
+    const explainBtn = document.getElementById("fileExplainBtn");
+    const explainCard = document.getElementById("fileExplainCard");
+    const hint = document.getElementById("fileDemoHint");
+
+
+    encryptBtn.onclick = async () => {
+        const file = input.files[0];
+        if (!file) return alert("Pilih file terlebih dahulu!");
+
+        output.textContent = "⏳ Mengenkripsi...";
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/crypto-edu/public/FileEnc/handle", {
+            method: "POST",
+            body: formData
+        });
+        const data = await res.json();
+        if (data.encoded) {
+            output.innerHTML = `
+                ✅ File terenkripsi:<br>
+                <a href="/crypto-edu/public/FileEnc/download/${data.encoded}" class="text-blue-400 underline">
+                    Unduh ${data.filename}
+                </a>
+            `;
+            title.textContent = "Dekripsi File";
+            hint.textContent = "Unggah file yang telah terenkripsi tadi, lalu klik untuk mendekripsi dan mengunduh hasilnya.";
+            encryptBtn.classList.add("hidden");
+            decryptBtn.classList.remove("hidden");
+        } else {
+            output.textContent = `❌ ${data.error || "Gagal mengenkripsi file."}`;
+        }
+    };
+
+    decryptBtn.onclick = async () => {
+        const file = input.files[0];
+        if (!file) return alert("Pilih file terenkripsi terlebih dahulu!");
+
+        output.textContent = "⏳ Mendekripsi...";
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/crypto-edu/public/FileEnc/decrypt", {
+            method: "POST",
+            body: formData
+        });
+        const data = await res.json();
+        if (data.encoded) {
+            output.innerHTML = `
+                ✅ File hasil dekripsi:<br>
+                <a href="/crypto-edu/public/FileEnc/download/${data.encoded}" class="text-green-400 underline">
+                    Unduh ${data.filename}
+                </a>
+            `;
+            decryptBtn.classList.add("hidden");
+            explainBtn.classList.remove("hidden");
+        } else {
+            output.textContent = `❌ ${data.error || "Gagal mendekripsi file."}`;
+        }
+    };
+
+    explainBtn.onclick = () => {
+        title.textContent = "Penjelasan Algoritma";
+        hint.textContent = ""; // Kosongkan petunjuk
+        explainCard.classList.remove("hidden");
+
+        // Sembunyikan elemen lain
+        explainBtn.classList.add("hidden");
+        decryptBtn.classList.add("hidden");
+        input.classList.add("hidden");
+        output.innerHTML = ""; // Hapus link download
+    };
+
+}
+
+
+
+
+

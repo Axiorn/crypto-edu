@@ -6,3 +6,7 @@ RewriteBase /crypto-edu/public/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+
+<FilesMatch "\.(pdf|docx|txt)$">
+    Require all granted
+</FilesMatch>
