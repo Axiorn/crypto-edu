@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 06, 2025 at 02:48 PM
+-- Generation Time: Nov 08, 2025 at 12:38 AM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.26
 
@@ -24,29 +24,36 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `encrypted_data`
+-- Table structure for table `demo_passwords`
 --
 
-CREATE TABLE `encrypted_data` (
+CREATE TABLE `demo_passwords` (
   `id` int NOT NULL,
-  `feature_name` varchar(100) DEFAULT NULL,
-  `user_id` int DEFAULT NULL,
-  `encrypted_value` text NOT NULL,
+  `original` text NOT NULL,
+  `scrypt_hash` text NOT NULL,
+  `chacha_encrypted` text NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `demo_passwords`
+--
+
+INSERT INTO `demo_passwords` (`id`, `original`, `scrypt_hash`, `chacha_encrypted`, `created_at`) VALUES
+(5, '123', '$argon2id$v=19$m=65536,t=2,p=1$njdKsMCKD+7Qfc1/G2bHuA$LEQG4tJMkEvnQ4KalOUgFxxahZULWoKwfQnc274CMKE', 'q7RvaXogRpzC088C/8BDTB02cu4XGex+bheF6K3ovA6bC4BNEpx9Sao07y3mpfc9E+rXN8Rlr9NTr/Vo3Oq1L8ozqEeKGnKQ4RfJNY2ZjQQINBqQDrm25jAMYHVa/s9HeCG0VS//vFBptSRavK3ebI+30Iiy1A53xHzUwDAULjRI6XLmnZUWk1M=', '2025-11-08 00:04:37'),
+(6, '321', '$argon2id$v=19$m=65536,t=2,p=1$1icNBo7YHxIfx9wF7EbaZA$CKkcWH9Ayfg2GS4bjvtWVLLMnG7rKeE9UOAEKdzJnL0', '5t14BKuPMFYhOpkCD7jqEE3QDihnwTH6fUN2qLOIMPo+kR64Vzb5zk+9rqxMEcJ1IsWYhWnDe6dvwIe0E+QOZAzbKc4FeYgL/N1NwJ4Bb93iqfmC/YQs0hSKjOXu1nDPB8/GANzhxxlCXIifuOiVyXSFS+0IulppU+Bs1r1VW50peWb+HidYWPU=', '2025-11-08 00:04:44');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `messages`
+-- Table structure for table `demo_texts`
 --
 
-CREATE TABLE `messages` (
+CREATE TABLE `demo_texts` (
   `id` int NOT NULL,
-  `user_id` int DEFAULT NULL,
-  `title` varchar(100) DEFAULT NULL,
-  `content_encrypted` text,
-  `nonce` varbinary(24) DEFAULT NULL,
+  `original` text NOT NULL,
+  `super_encrypted` text NOT NULL,
+  `chacha_encrypted` text NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -64,19 +71,27 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `password_hash`, `created_at`) VALUES
+(13, 'rudi', 'ATxFfVkl5bzEutvUMlKFQG0xCy5tmai/IHPpeJWvwdu8gcSvk9QF8rKUK5Ba3icyME05Roy75273amkTg1oCn7lHujLkQulEJxkZc7KAWSkSvXsoE6BpG1ITrv5gQnZlXN0uLXzlH3k0TeZ+TZ4coil5uj7ipzKpGg==', '2025-11-07 12:41:25'),
+(14, 'ahmad', 'gLWMcP8u96Gj07bdGh+VBVWC3uH8K01A0p43gfvEKkmv3aMnCyDMvRwtv6DEAMm6+NLCmBpfn/3IwdBGFZXjar5Q1ZH5HMvK768DyIwloNDrvx0ZYR4ovZB3xI98mt7BYnJI+p/5oK7PCWl2VbRvpapa09kXmOzokw==', '2025-11-07 12:47:35');
+
+--
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `encrypted_data`
+-- Indexes for table `demo_passwords`
 --
-ALTER TABLE `encrypted_data`
+ALTER TABLE `demo_passwords`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `messages`
+-- Indexes for table `demo_texts`
 --
-ALTER TABLE `messages`
+ALTER TABLE `demo_texts`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -91,22 +106,22 @@ ALTER TABLE `users`
 --
 
 --
--- AUTO_INCREMENT for table `encrypted_data`
+-- AUTO_INCREMENT for table `demo_passwords`
 --
-ALTER TABLE `encrypted_data`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+ALTER TABLE `demo_passwords`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT for table `messages`
+-- AUTO_INCREMENT for table `demo_texts`
 --
-ALTER TABLE `messages`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+ALTER TABLE `demo_texts`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

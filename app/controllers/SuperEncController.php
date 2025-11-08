@@ -1,33 +1,38 @@
 <?php
-class SuperEncController extends Controller {
-    private $model;
+require_once '../app/helpers/ScytaleHelper.php';
+require_once '../app/helpers/Salsa20Helper.php';
+require_once '../app/helpers/CryptoHelper.php';
 
-    public function __construct() {
-        session_start();
-        if (!isset($_SESSION['user'])) {
-            header('Location: ' . BASEURL . '/Auth/login');
-            exit;
+class SuperEncController {
+    public function handle() {
+        header('Content-Type: application/json');
+        $action = $_POST['action'] ?? null;
+
+        if ($action === 'encrypt') {
+            $text = $_POST['text'] ?? '';
+            if (!$text) {
+                echo json_encode(['error' => 'Teks kosong']);
+                return;
+            }
+
+            $salsa = Salsa20Helper::encrypt($text);
+            echo json_encode(['salsa' => $salsa]);
+            return;
         }
-        $this->model = $this->model('SuperEncModel');
-    }
 
-    public function index() {
-        $this->view('superenc/index');
-    }
+        if ($action === 'decrypt') {
+            $cipher = $_POST['cipher'] ?? '';
+            if (!$cipher) {
+                echo json_encode(['error' => 'Cipher kosong']);
+                return;
+            }
 
-    public function encrypt() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $text = $_POST['text'];
-            $key = (int) $_POST['key'];
-            $user_id = $_SESSION['user']['id'];
-
-            $encrypted = $this->model->superEncrypt($text, $key, $user_id);
-
-            $this->view('superenc/index', [
-                'text' => $text,
-                'encrypted' => $encrypted,
-                'key' => $key
-            ]);
+            $plain = Salsa20Helper::decrypt($cipher);
+            echo json_encode(['plain' => $plain]);
+            return;
         }
+
+        echo json_encode(['error' => 'Aksi tidak dikenali']);
     }
 }
+

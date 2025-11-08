@@ -1,24 +1,60 @@
-<?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
-<?php include __DIR__ . '/../templates/header.php'; ?>
-<div class="max-w-md mx-auto bg-white p-6 rounded shadow">
-    <h2 class="text-xl font-bold mb-4">Login</h2>
+<?php if (session_status() === PHP_SESSION_NONE) 
+    session_start(); 
+?>
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Login | CryptoEdu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
 
-    <?php if (!empty($data['success'])): ?>
-        <div class="text-green-600 mb-3"><?= htmlspecialchars($data['success']) ?></div>
-    <?php endif; ?>
+<body class="bg-[#0f0e17] flex justify-center items-center min-h-screen">
+    <!-- Card Login -->
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center text-gray-800">
+        <h2 class="text-2xl font-bold mb-6 text-[#14213D]">Login ke CryptoEdu</h2>
 
-    <?php if (!empty($data['error'])): ?>
-        <div class="text-red-500 mb-3"><?= htmlspecialchars($data['error']) ?></div>
-    <?php endif; ?>
+        <?php if (!empty($data['success'])): ?>
+            <div class="text-green-600 mb-3 text-sm font-medium">
+                <?= htmlspecialchars($data['success']) ?>
+            </div>
+        <?php endif; ?>
 
-    <form method="POST" action="<?= BASEURL ?>/Auth/login">
-        <input type="text" name="username" placeholder="Username" class="w-full p-2 border mb-3" required>
-        <input type="password" name="password" placeholder="Password" class="w-full p-2 border mb-3" required>
-        <button class="bg-blue-600 text-white px-4 py-2 rounded">Login</button>
-    </form>
+        <?php if (!empty($data['error'])): ?>
+            <div class="text-red-500 mb-3 text-sm font-medium">
+                <?= htmlspecialchars($data['error']) ?>
+            </div>
+        <?php endif; ?>
 
-    <p class="mt-3 text-sm">Belum punya akun?
-        <a href="<?= BASEURL ?>/Auth/register" class="text-blue-600">Daftar</a>
-    </p>
-</div>
-<?php include __DIR__ . '/../templates/footer.php'; ?>
+        <form method="POST" action="<?= BASEURL ?>/Auth/login" class="flex flex-col items-center">
+            <input 
+                type="text" 
+                name="username" 
+                placeholder="Username" 
+                class="w-3/4 p-2 mb-3 border border-black rounded-md focus:outline-none focus:ring-2 focus:ring-[#3da9fc]" 
+                required
+            >
+            <input 
+                type="password" 
+                name="password" 
+                placeholder="Password" 
+                class="w-3/4 p-2 mb-5 border border-black rounded-md focus:outline-none focus:ring-2 focus:ring-[#3da9fc]" 
+                required
+            >
+            <button 
+                type="submit"
+                class="w-3/4 bg-blue-500 text-white font-semibold py-2 rounded-md hover:bg-[#2a82c9] transition duration-200"
+            >
+                Login
+            </button>
+        </form>
+
+        <p class="mt-5 text-sm text-gray-700">
+            Belum punya akun?
+            <a href="<?= BASEURL ?>/Auth/register" class="text-[#3da9fc] hover:underline font-medium">Daftar</a>
+        </p>
+    </div>
+
+</body>
+</html>
